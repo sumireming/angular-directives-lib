@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.14/angular.min.js"></script>
+<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+  <meta charset="utf-8">
+  <title>Colunm Resize Demo</title>
+</head>
+<body ng-app="table">
+  <table class="table">
+    <thead>
+      <tr>
+        <th>
+          <span ng-colunm-resize=".table" mix-width="45" max-width="100"></span>
+          <div>1</div>
+        </th>
+        <th>
+          <span ng-colunm-resize></span>
+          <div>2</div>
+        </th>
+        <th>
+          <div>3</div>
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>
+          <div>one</div>
+        </td>
+        <td>
+          <div>two</div>
+        </td>
+        <td>
+          <div>three</div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <style type="text/css">
+      .table{
+        border:1px solid #ccc;
+        border-collapse : collapse;
+      }
+
+      .table th, .table td {
+        border:1px solid #ccc;
+      }
+
+      .table th>div, .table td>div{
+        margin:10px;
+      }
+
+      .table th>span{
+        float: right;
+        cursor: w-resize;
+        border:1px solid transparent;
+        height:40px;
+        display:inline;
+        position:relative;
+        margin:-2px -2px -2px 0px;
+      }
+
+      .table th.colunm-active, .table td.colunm-active{
+        border-right:1px solid blue; 
+      }
+  </style>
+
+  <script type="text/javascript">
+    (function($){
+        $.fn.disableSelection = function() {
+            return this
+                .attr('unselectable', 'on')
+                .css('user-select', 'none')
+                .on('selectstart', false);
+        };
+    })(jQuery);
+
+    $(".table").disableSelection();
+
+    angular.module("table",[])
+      .directive("ngColunmResize", function() {
+        
+        return {
+          restrict: "A",
+          controller : function($scope, $element, $attrs) {
+            var resizeFlag = false;
+            var index = -1;
+            var resizebarPosition;
+            var offset;
+            var prevEle;
+            var nextEle;
+            var prevEleWidth;
+
+            var tableContainer;
+            if($attrs.ngColunmResize){
+              tableContainer = $($attrs.ngColunmResize);
+            }else{
+              tableContainer = $($element).closest("table");
+            }
+            var minWidth = parseInt($attrs.minWidth, 10) || 0;
+            var maxWidth = parseInt($attrs.maxWidth, 10) || 500;
+            
+            $element.bind("mousedown", function(event) {
+              resizeFlag = true;
+              resizebarPosition = event.clientX;
+              index = $($element).parent().index();
+              prevEle = tableContainer.find("th").eq(index);
+              nextEle = tableContainer.find("th").eq(index + 1);
+              prevEleWidth = prevEle.width();
+              tableContainer.find("th").eq(index).addClass("colunm-active");
+              tableContainer.find("td").eq(index).addClass("colunm-active");
+              
+            });
+
+            angular.element(document).bind("mousemove", function(event) {
+              if(resizeFlag){
+                var xCoordinate = event.clientX;
+                offset = xCoordinate - resizebarPosition;
+
+                if(prevEleWidth + offset <= minWidth || prevEleWidth + offset >= maxWidth){
+                  return;
+                }else{
+                  prevEle.css("width", (prevEleWidth + offset) + "px");
+                }
+              }
+
+            });
+
+            angular.element(document).bind("mouseup", function(event) {
+              resizeFlag = false;
+              tableContainer.find("th").eq(index).removeClass("colunm-active");
+              tableContainer.find("td").eq(index).removeClass("colunm-active");
+            });
+
+          }
+        };
+        
+    });
+  </script>
+
+</body>
+</html>
