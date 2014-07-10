@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.14/angular.min.js"></script>
+	<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+	<script src="jquery.mousewheel.js"></script>
+	<script src="perfect-scrollbar.js"></script>
+	<link rel="stylesheet" href="perfect-scrollbar.css">
+	<meta charset="utf-8">
+	<title>demo</title>
+</head>
+<body ng-app="scrollbar">
+	<div  ng-controller="ctrl">
+		Length : <input ng-model="count" /> <br/>
+		Go to : <input ng-model="focus" />
+		<ul id="container" ng-scrollbar scroll-name="test">
+			<li ng-repeat="i in items" ng-repeat-finished="test">
+				<div class="{{'item_' + i}}">{{i}}</div>
+			</li>
+		</ul>
+	</div>
+	<script type="text/javascript">
+	angular.module("scrollbar", [])
+	.controller("ctrl", function($scope, $rootScope) {
+		$scope.count = 50;
+
+		$scope.$watch("count", function(){
+			$scope.items = [];
+			for(var i = 0; i < $scope.count; i++){
+				$scope.items.push(i);
+			}
+		});
+
+		$scope.$watch("focus", function() {
+			if($scope.focus){
+				var dom = $(".item_" + $scope.focus);
+				$rootScope.$broadcast("SCROLLTOP_test", dom);
+			}
+			
+		});
+	})
+	.directive("ngRepeatFinished", function($timeout) {
+		return {
+			restrict : "A",
+			link: function (scope, element, attr) {
+	            if (scope.$last === true) {
+	                $timeout(function () {
+	                    scope.$emit('ngRepeatFinished_' + attr.ngRepeatFinished);
+	                });
+	            }
+	        }
+		}
+	})
+	.directive("ngScrollbar", function($timeout) {
+		return {
+			restrict : "A",
+          	scope: false,
+          	transclude: false,
+            controller : function($scope, $element, $attrs) {
+
+            	$scope.$on("ngRepeatFinished_" + $attrs.scrollName, function(event) {
+            		$($element).perfectScrollbar();
+            	});
+
+                $scope.$on("SCROLLTOP_" + $attrs.scrollName, function(event, dom) {
+                	var topPosition = $($element).scrollTop();
+                	topPosition += dom.position().top;
+                	console.log(dom.position().top)
+                	console.log(topPosition)
+	            	$($element).scrollTop(topPosition);
+	            });
+	            
+	            
+            }
+        };
+	})
+	</script>
+	<style type="text/css">
+		body{
+			overflow: hidden;
+		}
+
+		#container{
+			height: 400px;
+			width: 400px;
+			border: 1px solid #ccc;
+			overflow: hidden;
+			position: relative;
+		}
+	</style>
+</body>
+</html>

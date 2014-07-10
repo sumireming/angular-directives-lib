@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>demo</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.14/angular.min.js"></script>
+  <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+  <script type="text/javascript" src="jquery.placeholder.js"></script>
+</head>
+<body ng-app="ph">
+	<div ng-controller="ctrl">
+		 <input ng-placeholder placeholder="{{testValue}}" />
+	</div>
+
+	<style type="text/css">
+		.placeholder {
+            color: red;
+            font-weight: bold;
+        }
+        ::-webkit-input-placeholder {
+            color: red;
+        }
+        :-moz-placeholder {
+            color: red;
+        }
+        ::-moz-placeholder {
+            color: red;
+        }
+        :-ms-input-placeholder {
+            color: red;
+        }
+	</style>
+
+	<script type="text/javascript">
+	  angular.module("ph",[])
+      .directive("ngPlaceholder", function(){
+        var obj = {
+          restrict : "A",
+          scope: false,
+          transclude: false,
+          compile : function(tElement, tAttrs, transclude) {
+            return {
+              pre : function preLink() {},
+              post : function postLink($scope, $element, $attrs) {
+
+                var waitForCompile = function() {
+                  setTimeout(function() {
+                    var placeholder = $($element).attr("placeholder");
+                    if(!/^\{\{(\S+)\}\}$/.test(placeholder)) {
+                      $($element).placeholder();
+                    }else{
+                      waitForCompile();
+                    }
+                  }, 200); 
+                }
+                waitForCompile();
+                
+              }
+            }
+          }
+        };
+        return obj;
+      })
+      .controller("ctrl", function($scope){
+        $scope.testValue = "hello";
+      })
+	   
+	</script>
+</body>
+</html>

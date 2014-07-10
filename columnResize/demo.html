@@ -10,28 +10,48 @@
   <table class="table">
     <thead>
       <tr>
-        <th>
-          <span ng-colunm-resize=".table" mix-width="45" max-width="100"></span>
+        <th class="col1">
+          <span ng-colunm-resize=".table" free-column=".col3"></span>
           <div>1</div>
         </th>
-        <th>
-          <span ng-colunm-resize></span>
+        <th class="col2">
+          <span ng-colunm-resize free-column=".col3"></span>
           <div>2</div>
         </th>
-        <th>
+        <th class="col3">
           <div>3</div>
+        </th>
+        <th class="col4">
+          <div>4</div>
         </th>
       </tr>
     </thead>
     <tbody>
       <tr>
-        <td>
+        <td class="col1">
           <div>one</div>
         </td>
-        <td>
+        <td class="col2">
           <div>two</div>
         </td>
-        <td>
+        <td class="col3">
+          <div>three</div>
+        </td>
+        <td class="col4">
+          <div>three</div>
+        </td>
+      </tr>
+      <tr>
+        <td class="col1">
+          <div>one</div>
+        </td>
+        <td class="col2">
+          <div>two</div>
+        </td>
+        <td class="col3">
+          <div>three</div>
+        </td>
+        <td class="col4">
           <div>three</div>
         </td>
       </tr>
@@ -42,14 +62,43 @@
       .table{
         border:1px solid #ccc;
         border-collapse : collapse;
+        width: 100%;
+      }
+
+      .table tr{
+        border: 1px solid #ccc;
       }
 
       .table th, .table td {
-        border:1px solid #ccc;
+        border-left: 1px solid #ccc; 
+        display: inline-block;
+        overflow: hidden;
+      }
+
+      .table .col1{
+        width: 30px;
+      }
+
+      .table .col2{
+        width: 40px;
+      }
+
+      .table .col3{
+        
+      }
+
+      .table .col3 div{
+        
+      }
+
+      .table .col4{
+        display: none;
+        width: 50px;
       }
 
       .table th>div, .table td>div{
         margin:10px;
+        overflow: hidden;
       }
 
       .table th>span{
@@ -89,28 +138,36 @@
             var index = -1;
             var resizebarPosition;
             var offset;
-            var prevEle;
-            var nextEle;
+            var prevEleTH;
+            var prevEleTD;
             var prevEleWidth;
 
             var tableContainer;
-            if($attrs.ngColunmResize){
+            if($attrs.ngColunmResize) {
               tableContainer = $($attrs.ngColunmResize);
             }else{
               tableContainer = $($element).closest("table");
             }
-            var minWidth = parseInt($attrs.minWidth, 10) || 0;
-            var maxWidth = parseInt($attrs.maxWidth, 10) || 500;
+
+            var freeColumn = $($attrs.freeColumn);
+            var widthSum = 0;
+            tableContainer.find("th:visible").not(freeColumn).each(function(i,e) {
+              widthSum += $(e).width();
+            });
+            var freeColumnWidth = tableContainer.width() - widthSum - 10;
+            freeColumn.width(freeColumnWidth);
+            
             
             $element.bind("mousedown", function(event) {
               resizeFlag = true;
               resizebarPosition = event.clientX;
               index = $($element).parent().index();
-              prevEle = tableContainer.find("th").eq(index);
-              nextEle = tableContainer.find("th").eq(index + 1);
-              prevEleWidth = prevEle.width();
-              tableContainer.find("th").eq(index).addClass("colunm-active");
-              tableContainer.find("td").eq(index).addClass("colunm-active");
+              prevEleTH = tableContainer.find("th").eq(index);
+              prevEleTD = tableContainer.find("tr").find("td:eq("+ index +")");
+              prevEleWidth = prevEleTH.width();
+              freeColumnWidth = freeColumn.width();
+              prevEleTH.addClass("colunm-active");
+              prevEleTD.addClass("colunm-active");
               
             });
 
@@ -119,19 +176,22 @@
                 var xCoordinate = event.clientX;
                 offset = xCoordinate - resizebarPosition;
 
-                if(prevEleWidth + offset <= minWidth || prevEleWidth + offset >= maxWidth){
-                  return;
-                }else{
-                  prevEle.css("width", (prevEleWidth + offset) + "px");
-                }
+                
+                prevEleTH.css("width", (prevEleWidth + offset) + "px");
+                prevEleTD.css("width", (prevEleWidth + offset) + "px");
+                freeColumn.css("width", (freeColumnWidth - offset) + "px");
               }
 
             });
 
             angular.element(document).bind("mouseup", function(event) {
+              if(!prevEleTH || !prevEleTD){
+                return;
+              }
+
               resizeFlag = false;
-              tableContainer.find("th").eq(index).removeClass("colunm-active");
-              tableContainer.find("td").eq(index).removeClass("colunm-active");
+              prevEleTH.removeClass("colunm-active");
+              prevEleTD.removeClass("colunm-active");
             });
 
           }
