@@ -1,0 +1,16 @@
+<div class="edit-table">
+    <div class="head">
+        <div ng-show = "selected.isHotDeployable" class="cell column-0">hot</div>
+        <div ng-show = "selected.name" class="cell column-1">property<span ng-colunm-resize=".edit-table" free-column=".column-3"></span></div>
+        <div ng-show = "selected.value" class="cell column-2">value<span ng-colunm-resize=".edit-table" free-column=".column-3"></span></div>
+        <div ng-show = "selected.description" class="cell column-3">description</div>
+        <div ng-show = "selected.sinceVersion" class="cell column-4">Since Version</div>
+    </div>
+    <div class="row" ng-repeat="row in tableData">
+        <div ng-show = "selected.isHotDeployable" class="cell column-0"></div>
+        <div ng-show = "selected.name" class="cell column-1">{{row.name}}</div>
+        <div ng-show = "selected.value" class="cell column-2">{{row.value}}</div>
+        <div ng-show = "selected.description" class="cell column-3">{{row.description}}</div>
+        <div ng-show = "selected.sinceVersion" class="cell column-4">{{row.sinceVersion}}</div>
+    </div>
+</div>
