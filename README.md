@@ -1,4 +1,5 @@
 angular-directives
 ==================
 
-在项目中自己写的一些directive
+## 增删改查
+[http://sumireming.github.io/angular-directives-lib/CRUD/controller-demo.html](http://sumireming.github.io/angular-directives-lib/CRUD/controller-demo.html)
